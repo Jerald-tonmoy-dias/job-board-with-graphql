@@ -1,23 +1,27 @@
+import "graphql-import-node"
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import express from "express";
 import cors from "cors";
 import cookiePerser from "cookie-parser";
+import schema from "./schema";
 
 const app = express();
 
-const server = new ApolloServer({
-  typeDefs: `
-  type Query {
-  hello:String
-  }
-  `,
-  resolvers: {
-    Query: {
-      hello: () => "hello world"
-    }
-  }
-});
+// const server = new ApolloServer({
+//   typeDefs: `
+//   type Query {
+//   hello:String
+//   }
+//   `,
+//   resolvers: {
+//     Query: {
+//       hello: () => "hello world"
+//     }
+//   }
+// });
+
+const server = new ApolloServer({ schema });
 
 async function startServer() {
   await server.start();
