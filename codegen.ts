@@ -7,15 +7,15 @@ const config: CodegenConfig = {
     "./server/types/resolvers-types.ts": {
       plugins: ["typescript", "typescript-resolvers"],
       config: {
-        // typesPrefix: "I",
-        // contextType: "../context#Context",
+        typesPrefix: "I",
+        contextType: "../context#Context",
         defaultMapper: "Partial<{T}>",
-        // scalars: {
-        //   DateTime: "Date",
-        // },
-        // mappers: {
-        //   Job: "@prisma/client#Job",
-        // },
+        scalars: {
+          DateTime: "Date",
+        },
+        mappers: {
+          Job: "@prisma/client#Job",
+        },
       },
     },
     // "src/types/graphql.ts": {

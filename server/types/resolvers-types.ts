@@ -1,4 +1,6 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { Job } from '@prisma/client';
+import { Context } from '../context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -6,6 +8,8 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -13,23 +17,140 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  DateTime: { input: Date; output: Date; }
 };
 
-export type Company = {
+export type IApplyForJobInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type ICancelApplicationInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type ICompany = {
   __typename?: 'Company';
   id: Scalars['ID']['output'];
-  name?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
 };
 
-export type Job = {
+export type ICreateJobInput = {
+  companyName: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  location: Scalars['String']['input'];
+  remote: Scalars['Boolean']['input'];
+  salary: Scalars['Int']['input'];
+  title: Scalars['String']['input'];
+  type: IJobType;
+};
+
+export type IDeleteJobInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type IJob = {
   __typename?: 'Job';
+  company: ICompany;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  isApplied: Scalars['Boolean']['output'];
+  location: Scalars['String']['output'];
+  remote: Scalars['Boolean']['output'];
+  salary: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+  type: IJobType;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
-export type User = {
-  __typename?: 'User';
-  id: Scalars['ID']['output'];
+export enum IJobType {
+  FullTime = 'FULL_TIME',
+  Internship = 'INTERNSHIP',
+  PartTime = 'PART_TIME'
+}
+
+export type ILoginInput = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
+
+export type IMutation = {
+  __typename?: 'Mutation';
+  applyForJob: Scalars['Boolean']['output'];
+  cancelApplication: Scalars['Boolean']['output'];
+  createJob: IJob;
+  deleteJob: Scalars['Boolean']['output'];
+  login: IUser;
+  logout: Scalars['Boolean']['output'];
+  signup: IUser;
+};
+
+
+export type IMutationApplyForJobArgs = {
+  input: IApplyForJobInput;
+};
+
+
+export type IMutationCancelApplicationArgs = {
+  input: ICancelApplicationInput;
+};
+
+
+export type IMutationCreateJobArgs = {
+  input: ICreateJobInput;
+};
+
+
+export type IMutationDeleteJobArgs = {
+  input: IDeleteJobInput;
+};
+
+
+export type IMutationLoginArgs = {
+  input: ILoginInput;
+};
+
+
+export type IMutationSignupArgs = {
+  input: ISignupInput;
+};
+
+export type IQuery = {
+  __typename?: 'Query';
+  me?: Maybe<IUser>;
+  searchJobs: Array<IJob>;
+};
+
+
+export type IQuerySearchJobsArgs = {
+  input: ISearchJobsInput;
+};
+
+export type ISearchJobsInput = {
+  query: Scalars['String']['input'];
+};
+
+export type ISignupInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  role: IUserRole;
+};
+
+export type IUser = {
+  __typename?: 'User';
+  appliedJobs: Array<IJob>;
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  ownedJobs: Array<IJob>;
+  role: IUserRole;
+};
+
+export enum IUserRole {
+  Admin = 'ADMIN',
+  User = 'USER'
+}
 
 
 
@@ -101,44 +222,105 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 
 /** Mapping between all available schema types and the resolvers types */
-export type ResolversTypes = {
+export type IResolversTypes = {
+  ApplyForJobInput: ResolverTypeWrapper<Partial<IApplyForJobInput>>;
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
-  Company: ResolverTypeWrapper<Partial<Company>>;
+  CancelApplicationInput: ResolverTypeWrapper<Partial<ICancelApplicationInput>>;
+  Company: ResolverTypeWrapper<Partial<ICompany>>;
+  CreateJobInput: ResolverTypeWrapper<Partial<ICreateJobInput>>;
+  DateTime: ResolverTypeWrapper<Partial<Scalars['DateTime']['output']>>;
+  DeleteJobInput: ResolverTypeWrapper<Partial<IDeleteJobInput>>;
   ID: ResolverTypeWrapper<Partial<Scalars['ID']['output']>>;
-  Job: ResolverTypeWrapper<Partial<Job>>;
+  Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
+  Job: ResolverTypeWrapper<Job>;
+  JobType: ResolverTypeWrapper<Partial<IJobType>>;
+  LoginInput: ResolverTypeWrapper<Partial<ILoginInput>>;
+  Mutation: ResolverTypeWrapper<{}>;
+  Query: ResolverTypeWrapper<{}>;
+  SearchJobsInput: ResolverTypeWrapper<Partial<ISearchJobsInput>>;
+  SignupInput: ResolverTypeWrapper<Partial<ISignupInput>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
-  User: ResolverTypeWrapper<Partial<User>>;
+  User: ResolverTypeWrapper<Partial<Omit<IUser, 'appliedJobs' | 'ownedJobs'> & { appliedJobs: Array<IResolversTypes['Job']>, ownedJobs: Array<IResolversTypes['Job']> }>>;
+  UserRole: ResolverTypeWrapper<Partial<IUserRole>>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
-export type ResolversParentTypes = {
+export type IResolversParentTypes = {
+  ApplyForJobInput: Partial<IApplyForJobInput>;
   Boolean: Partial<Scalars['Boolean']['output']>;
-  Company: Partial<Company>;
+  CancelApplicationInput: Partial<ICancelApplicationInput>;
+  Company: Partial<ICompany>;
+  CreateJobInput: Partial<ICreateJobInput>;
+  DateTime: Partial<Scalars['DateTime']['output']>;
+  DeleteJobInput: Partial<IDeleteJobInput>;
   ID: Partial<Scalars['ID']['output']>;
-  Job: Partial<Job>;
+  Int: Partial<Scalars['Int']['output']>;
+  Job: Job;
+  LoginInput: Partial<ILoginInput>;
+  Mutation: {};
+  Query: {};
+  SearchJobsInput: Partial<ISearchJobsInput>;
+  SignupInput: Partial<ISignupInput>;
   String: Partial<Scalars['String']['output']>;
-  User: Partial<User>;
+  User: Partial<Omit<IUser, 'appliedJobs' | 'ownedJobs'> & { appliedJobs: Array<IResolversParentTypes['Job']>, ownedJobs: Array<IResolversParentTypes['Job']> }>;
 };
 
-export type CompanyResolvers<ContextType = any, ParentType extends ResolversParentTypes['Company'] = ResolversParentTypes['Company']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type ICompanyResolvers<ContextType = Context, ParentType extends IResolversParentTypes['Company'] = IResolversParentTypes['Company']> = {
+  id?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type JobResolvers<ContextType = any, ParentType extends ResolversParentTypes['Job'] = ResolversParentTypes['Job']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+export interface IDateTimeScalarConfig extends GraphQLScalarTypeConfig<IResolversTypes['DateTime'], any> {
+  name: 'DateTime';
+}
+
+export type IJobResolvers<ContextType = Context, ParentType extends IResolversParentTypes['Job'] = IResolversParentTypes['Job']> = {
+  company?: Resolver<IResolversTypes['Company'], ParentType, ContextType>;
+  createdAt?: Resolver<IResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
+  isApplied?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType>;
+  location?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  remote?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType>;
+  salary?: Resolver<IResolversTypes['Int'], ParentType, ContextType>;
+  title?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<IResolversTypes['JobType'], ParentType, ContextType>;
+  updatedAt?: Resolver<IResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+export type IMutationResolvers<ContextType = Context, ParentType extends IResolversParentTypes['Mutation'] = IResolversParentTypes['Mutation']> = {
+  applyForJob?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType, RequireFields<IMutationApplyForJobArgs, 'input'>>;
+  cancelApplication?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType, RequireFields<IMutationCancelApplicationArgs, 'input'>>;
+  createJob?: Resolver<IResolversTypes['Job'], ParentType, ContextType, RequireFields<IMutationCreateJobArgs, 'input'>>;
+  deleteJob?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType, RequireFields<IMutationDeleteJobArgs, 'input'>>;
+  login?: Resolver<IResolversTypes['User'], ParentType, ContextType, RequireFields<IMutationLoginArgs, 'input'>>;
+  logout?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType>;
+  signup?: Resolver<IResolversTypes['User'], ParentType, ContextType, RequireFields<IMutationSignupArgs, 'input'>>;
+};
+
+export type IQueryResolvers<ContextType = Context, ParentType extends IResolversParentTypes['Query'] = IResolversParentTypes['Query']> = {
+  me?: Resolver<Maybe<IResolversTypes['User']>, ParentType, ContextType>;
+  searchJobs?: Resolver<Array<IResolversTypes['Job']>, ParentType, ContextType, RequireFields<IQuerySearchJobsArgs, 'input'>>;
+};
+
+export type IUserResolvers<ContextType = Context, ParentType extends IResolversParentTypes['User'] = IResolversParentTypes['User']> = {
+  appliedJobs?: Resolver<Array<IResolversTypes['Job']>, ParentType, ContextType>;
+  email?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  ownedJobs?: Resolver<Array<IResolversTypes['Job']>, ParentType, ContextType>;
+  role?: Resolver<IResolversTypes['UserRole'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type Resolvers<ContextType = any> = {
-  Company?: CompanyResolvers<ContextType>;
-  Job?: JobResolvers<ContextType>;
-  User?: UserResolvers<ContextType>;
+export type IResolvers<ContextType = Context> = {
+  Company?: ICompanyResolvers<ContextType>;
+  DateTime?: GraphQLScalarType;
+  Job?: IJobResolvers<ContextType>;
+  Mutation?: IMutationResolvers<ContextType>;
+  Query?: IQueryResolvers<ContextType>;
+  User?: IUserResolvers<ContextType>;
 };
 

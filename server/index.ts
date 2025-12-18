@@ -5,7 +5,7 @@ import express from "express";
 import cors from "cors";
 import cookiePerser from "cookie-parser";
 import schema from "./schema";
-
+import createContext from "./context";
 const app = express();
 
 // const server = new ApolloServer({
@@ -32,7 +32,10 @@ async function startServer() {
   }),
     cookiePerser(),
     express.json(),
-    expressMiddleware(server));
+       expressMiddleware(server, {
+      context: async ({ req, res }) => createContext({ req, res }),
+    })
+  );
 
   app.listen(4000, () => {
     console.log("Server is running on http://localhost:4000/graphql");
